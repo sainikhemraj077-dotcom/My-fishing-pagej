@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>मोबाइल रिचार्ज — 3 Page Flow</title>
+<style>
+  :root{
+    --brand:#d60000;
+    --brand-dark:#a80000;
+    --bg:#f7f7f7;
+    --card:#ffffff;
+    --text:#222;
+    --muted:#666;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font-family:'Segoe UI',Tahoma,sans-serif;color:var(--text)}
+  header{
+    position:sticky;top:0;z-index:5;
+    background:linear-gradient(90deg,#ff0000,#b30000);
+    color:#fff;padding:14px 16px;font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15)
+  }
+  header img{height:34px}
+  main{max-width:520px;margin:14px auto;padding:0 14px 22px}
+  .page{display:none}
+  .page.show{display:block}
+
+  label{font-weight:700;margin-top:14px;display:block}
+  input,select,button{
+    width:100%;padding:12px 14px;margin-top:8px;font-size:16px;border-radius:8px;border:1px solid #ddd;
+  }
+  input:focus,select:focus{outline:none;border-color:#ff3333;box-shadow:0 0 0 3px rgba(255,0,0,.12)}
+  .btn{background:var(--brand);color:#fff;border:none;font-weight:800;cursor:pointer}
+  .btn:hover{background:var(--brand-dark)}
+
+  .section-title{margin:18px 0 10px;font-size:18px;color:var(--brand);font-weight:800}
+
+  /* Plans grid - scrollable container */
+  .plans-wrap{
+    background:var(--card);border-radius:12px;padding:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    max-height:65vh;overflow:auto;
+  }
+  .op-block{margin-bottom:16px}
+  .op-head{
+    position:sticky;top:0;background:linear-gradient(90deg,#fff,#fff);
+    padding:8px 10px;border-left:4px solid var(--brand);border-radius:8px;margin-bottom:10px;
+    font-weight:800;color:#b30000
+  }
+  .plans{
+    display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  }
+  .card{
+    background:#fff;border-radius:12px;padding:12px;border:1px solid #eee;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:6px
+  }
+  .price{font-size:20px;font-weight:900;color:#b30000}
+  .meta{font-size:13.5px;color:#333}
+  .mini{font-size:12px;color:#888}
+  .buy{margin-top:6px}
+
+  /* Payment buttons + QR */
+  .paybtn{display:block;text-align:center;background:#1976d2;color:#fff;text-decoration:none;
+          padding:12px;border-radius:10px;font-weight:800;margin:8px 0}
+  .paybtn.phonepe{background:#5f259f}
+  .paybtn.any{background:#0aa15f}
+  .summary{
+    background:var(--card);border-radius:12px;padding:12px;margin:10px 0;
+    border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:pre-line
+  }
+  .qr{
+    display:block;margin:12px auto 4px auto;max-width:220px;border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.15)
+  }
+  .help{font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Jio_Logo.svg/1200px-Jio_Logo.svg.png" alt="Jio">
+  <div>मोबाइल रिचार्ज</div>
+</header>
+
+<main>
+  <!-- Page 1 -->
+  <section id="page1" class="page show">
+    <h2 class="section-title">स्टेप 1 — मोबाइल नंबर</h2>
+    <label for="mobile">मोबाइल नंबर</label>
+    <input type="tel" id="mobile" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10 अंकों का नंबर" required />
+    <label for="operator">ऑपरेटर</label>
+    <select id="operator" required>
+      <option value="">— चुनें —</option>
+      <option value="jio">Jio</option>
+      <option value="airtel">Airtel</option>
+      <option value="vi">Vodafone Idea (Vi)</option>
+      <option value="bsnl">BSNL</option>
+    </select>
+    <button class="btn" onclick="goToPlans()">Recharge Now</button>
+  </section>
+
+  <!-- Page 2 -->
+  <section id="page2" class="page">
+    <h2 class="section-title">स्टेप 2 — प्लान चुनें</h2>
+    <div class="plans-wrap" id="plansWrap">
+      <!-- All operators & plans will render here -->
+    </div>
+    <button class="btn" style="margin-top:12px" onclick="showPage(1)">⬅ वापस</button>
+  </section>
+
+  <!-- Page 3 -->
+  <section id="page3" class="page">
+    <h2 class="section-title">स्टेप 3 — पेमेंट</h2>
+    <div class="summary" id="summary"></div>
+    <a id="gpayBtn" class="paybtn">Pay with Google Pay</a>
+    <a id="phonepeBtn" class="paybtn phonepe">Pay with PhonePe</a>
+    <a id="anyUpiBtn" class="paybtn any">Open in any UPI App</a>
+    <img id="qrImg" class="qr" alt="UPI QR" />
+    <div class="help">अगर लिंक से न खुले, तो ऊपर दिए गए QR को UPI ऐप से स्कैन करें।</div>
+    <button class="btn" style="margin-top:12px" onclick="showPage(2)">⬅ प्लान बदलें</button>
+  </section>
+</main>
+
+<script>
+  // ==== CONFIG ====
+  const UPI_ID = "monikadadhich@jio";
+  const UPI_NAME = "Monika Dadhich";
+  const NOTE_PREFIX = "Recharge";
+
+  // ==== PLANS DATA ====
+  // आप यहाँ जितने चाहें उतने प्लान जोड़ सकते हैं — Page-2 में सब स्क्रॉल होकर दिखेंगे
+  const plansData = {
+    jio: [
+      {amount:119, validity:"14 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:149, validity:"28 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:199, validity:"28 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:239, validity:"28 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:249, validity:"56 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:299, validity:"28 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:349, validity:"28 दिन", benefits:"2.5GB/दिन डाटा"},
+      {amount:399, validity:"84 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:479, validity:"56 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:666, validity:"84 दिन", benefits:"1.5GB/दिन डाटा"}
+    ],
+    airtel: [
+      {amount:99, validity:"15 दिन", benefits:"सिर्फ टॉकटाइम"},
+      {amount:199, validity:"28 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:239, validity:"24 दिन", benefits:"1GB/दिन डाटा"},
+      {amount:299, validity:"28 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:319, validity:"30 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:399, validity:"56 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:449, validity:"84 दिन", benefits:"2.5GB/दिन डाटा"},
+      {amount:549, validity:"56 दिन", benefits:"2GB/दिन डाटा"}
+    ],
+    vi: [
+      {amount:149, validity:"28 दिन", benefits:"1GB/दिन डाटा"},
+      {amount:199, validity:"28 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:249, validity:"56 दिन", benefits:"1.5GB/दिन डाटा"},
+      {amount:299, validity:"28 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:319, validity:"31 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:399, validity:"84 दिन", benefits:"2GB/दिन डाटा"},
+      {amount:479, validity:"56 दिन", benefits:"1.5GB/दिन डाटा"}
+    ],
+    bsnl: [
+      {amount:94, validity:"30 दिन", benefits:"टॉकटाइम + 2GB"},
+      {amount:125, validity:"30 दिन", benefits:"Unlimited कॉल + 2GB"},
+      {amount:147, validity:"30 दिन", benefits:"डाटा + कॉल"},
+      {amount:225, validity:"60 दिन", benefits:"Unlimited कॉल + 3GB"},
+      {amount:247, validity:"40 दिन", benefits:"डाटा + कॉल"},
+      {amount:319, validity:"65 दिन", benefits:"डाटा + कॉल"},
+      {amount:350, validity:"90 दिन", benefits:"Unlimited कॉल + 5GB"}
+    ]
+  };
+
+  // ==== STATE ====
+  let selectedNumber = "";
+  let selectedOperator = "";
+  let selectedPlan = null;
+
+  // ==== NAV ====
+  function showPage(n){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+    document.getElementById('page'+n).classList.add('show');
+    // छोटे ऑटो-स्क्रॉल UX
+    if(n===2) document.getElementById('plansWrap').scrollTop = 0;
+    if(n===3) window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ==== STEP 1 -> STEP 2 ====
+  function goToPlans(){
+    const m = document.getElementById('mobile').value.trim();
+    const op = document.getElementById('operator').value;
+    if(!/^\d{10}$/.test(m)){ alert("सही 10 अंकों का मोबाइल नंबर डालें"); return; }
+    if(!op){ alert("ऑपरेटर चुनें"); return; }
+    selectedNumber = m;
+    selectedOperator = op;
+    renderAllPlans(); // सभी ऑपरेटर के प्लान दिखाएँ (स्क्रॉल)
+    showPage(2);
+  }
+
+  // ==== RENDER ALL OPERATORS & PLANS (SCROLLABLE) ====
+  function renderAllPlans(){
+    const wrap = document.getElementById('plansWrap');
+    wrap.innerHTML = ""; // reset
+
+    Object.keys(plansData).forEach(op=>{
+      const block = document.createElement('div');
+      block.className = 'op-block';
+      block.innerHTML = `<div class="op-head">${op.toUpperCase()}</div>
+                         <div class="plans" id="grid-${op}"></div>`;
+      wrap.appendChild(block);
+
+      const grid = block.querySelector(`#grid-${op}`);
+      plansData[op].forEach(p=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="price">₹${p.amount}</div>
+          <div class="meta">वैधता: ${p.validity}</div>
+          <div class="meta">${p.benefits}</div>
+          <div class="mini">2+ more OTT भी</div>
+          <button class="btn buy" onclick="goToPayment('${op}', ${p.amount}, '${p.validity.replace(/'/g,"&#39;")}', '${p.benefits.replace(/'/g,"&#39;")}')">Buy Now</button>
+        `;
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  // ==== STEP 2 -> STEP 3 ====
+  function goToPayment(op, amount, validity, benefits){
+    selectedOperator = op; // यूज़र किसी भी ऑपरेटर के प्लान पर क्लिक कर सकता है
+    selectedPlan = {amount, validity, benefits};
+
+    const note = `${NOTE_PREFIX} for ${selectedNumber} (${op.toUpperCase()})`;
+    const upiUri = makeUpiUri(UPI_ID, UPI_NAME, amount, note);
+
+    // Summary
+    document.getElementById('summary').textContent =
+`मोबाइल: ${selectedNumber}
+ऑपरेटर: ${op.toUpperCase()}
+प्लान: ₹${amount} — ${validity}
+लाभ: ${benefits}`;
+
+    // Intent deep links (GPay / PhonePe) + generic UPI link
+    document.getElementById('gpayBtn').href     = makeIntent(upiUri, 'com.google.android.apps.nbu.paisa.user');
+    document.getElementById('phonepeBtn').href  = makeIntent(upiUri, 'com.phonepe.app');
+    document.getElementById('anyUpiBtn').href   = upiUri; // किसी भी UPI ऐप में खुलेगा
+
+    // QR fallback
+    document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}`;
+
+    showPage(3);
+  }
+
+  // ==== HELPERS ====
+  function makeUpiUri(upiId, name, amount, note){
+    const pa = encodeURIComponent(upiId);
+    const pn = encodeURIComponent(name);
+    const am = encodeURIComponent(String(amount));
+    const tn = encodeURIComponent(note);
+    return `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`;
+  }
+  function makeIntent(upiUri, pkg){
+    // intent://pay?...  ← upi://pay?... को intent:// में बदलें
+    const tail = upiUri.replace('upi://','');
+    return `intent://${tail}#Intent;scheme=upi;package=${pkg};end`;
+  }
+</script>
+</body>
+</html>
