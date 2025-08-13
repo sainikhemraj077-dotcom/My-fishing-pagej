@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>मोबाइल रिचार्ज - Jio जैसी वेबसाइट</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff0000 0%, #d40000 100%);
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #b80000;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    header img {
+      height: 40px;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: 1.2px;
+    }
+    main {
+      background: white;
+      color: #111;
+      max-width: 480px;
+      margin: 30px auto;
+      border-radius: 12px;
+      padding: 25px 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #444;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1.5px solid #ccc;
+      transition: border-color 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #ff0000;
+      outline: none;
+      box-shadow: 0 0 5px #ff0000;
+    }
+    button {
+      background-color: #ff0000;
+      color: white;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      margin-top: 25px;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #b70000;
+    }
+    .plan-list {
+      margin-top: 25px;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    .plan-item {
+      background: #ffe5e5;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: #b70000;
+      font-weight: 600;
+      box-shadow: 0 1px 5px rgba(183,0,0,0.3);
+    }
+    .plan-item:hover {
+      background-color: #ffcccc;
+    }
+    #paymentLink {
+      margin-top: 30px;
+      text-align: center;
+      font-weight: 600;
+      color: #b70000;
+    }
+    #paymentLink a {
+      font-size: 18px;
+      color: #b70000;
+      font-weight: 700;
+      text-decoration: none;
+      background: #ffe5e5;
+      padding: 8px 14px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 12px;
+      box-shadow: 0 2px 6px rgba(183,0,0,0.4);
+      transition: background-color 0.3s;
+    }
+    #paymentLink a:hover {
+      background-color: #ffb3b3;
+    }
+    #paymentLink img {
+      margin-top: 18px;
+      width: 220px;
+      height: 220px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(183,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Jio_Logo.svg/1200px-Jio_Logo.svg.png" alt="Jio Logo" />
+    <h1>मोबाइल रिचार्ज</h1>
+  </header>
+
+  <main>
+    <form id="rechargeForm" onsubmit="event.preventDefault(); showPlans();">
+      <label for="mobile">मोबाइल नंबर दर्ज करें:</label>
+      <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" placeholder="10 अंक का नंबर" required />
+
+      <label for="operator">ऑपरेटर चुनें:</label>
+      <select id="operator" name="operator" required>
+        <option value="">-- ऑपरेटर चुनें --</option>
+        <option value="jio">Jio</option>
+        <option value="airtel">Airtel</option>
+        <option value="vi">Vodafone Idea (Vi)</option>
+        <option value="bsnl">BSNL</option>
+      </select>
+
+      <button type="submit">रिचार्ज प्लान देखें</button>
+    </form>
+
+    <div class="plan-list" id="planList" style="display:none;">
+      <h2>रिचार्ज प्लान्स:</h2>
+      <div id="plans"></div>
+
+      <label for="amount">राशि चुनें या दर्ज करें (₹):</label>
+      <input type="number" id="amount" min="10" placeholder="राशि दर्ज करें" />
+
+      <button onclick="generateUPILink()">UPI पेमेंट लिंक बनाएं</button>
+
+      <div id="paymentLink"></div>
+    </div>
+  </main>
+
+  <script>
+    const plansData = {
+      jio: [
+        { amount: 149, validity: '28 दिन', benefits: '2GB/दिन डाटा' },
+        { amount: 249, validity: '56 दिन', benefits: '1.5GB/दिन डाटा' },
+        { amount: 399, validity: '84 दिन', benefits: '2GB/दिन डाटा' }
+      ],
+      airtel: [
+        { amount: 199, validity: '28 दिन', benefits: '1.5GB/दिन डाटा' },
+        { amount: 299, validity: '56 दिन', benefits: '2GB/दिन डाटा' },
+        { amount: 449, validity: '84 दिन', benefits: '2.5GB/दिन डाटा' }
+      ],
+      vi: [
+        { amount: 149, validity: '28 दिन', benefits: '1GB/दिन डाटा' },
+        { amount: 249, validity: '56 दिन', benefits: '1.5GB/दिन डाटा' },
+        { amount: 399, validity: '84 दिन', benefits: '2GB/दिन डाटा' }
+      ],
+      bsnl: [
+        { amount: 125, validity: '30 दिन', benefits: 'Unlimited कॉल + 2GB डाटा' },
+        { amount: 225, validity: '60 दिन', benefits: 'Unlimited कॉल + 3GB डाटा' },
+        { amount: 350, validity: '90 दिन', benefits: 'Unlimited कॉल + 5GB डाटा' }
+      ],
+    };
+
+    function showPlans() {
+      const operator = document.getElementById('operator').value;
+      const planListDiv = document.getElementById('planList');
+      const plansDiv = document.getElementById('plans');
+      const amountInput = document.getElementById('amount');
+      const paymentLinkDiv = document.getElementById('paymentLink');
+
+      paymentLinkDiv.innerHTML = '';
+      amountInput.value = '';
+
+      if (!operator) {
+        alert('कृपया ऑपरेटर चुनें!');
+        planListDiv.style.display = 'none';
+        return;
+      }
+
+      const plans = plansData[operator];
+      if (!plans) {
+        plansDiv.innerHTML = 'कोई प्लान उपलब्ध नहीं है।';
+        planListDiv.style.display = 'block';
+        return;
+      }
+
+      let html = '';
+      plans.forEach(plan => {
+        html += `<div class="plan-item" onclick="selectAmount(${plan.amount})" title="क्लिक करें राशि चुनने के लिए">
+          ₹${plan.amount} - वैधता: ${plan.validity} - फायदे: ${plan.benefits}
+        </div>`;
+      });
+
+      plansDiv.innerHTML = html;
+      planListDiv.style.display = 'block';
+    }
+
+    function selectAmount(amount) {
+      document.getElementById('amount').value = amount;
+      document.getElementById('paymentLink').innerHTML = '';
+    }
+
+    function generateUPILink() {
+      const amount = document.getElementById('amount').value;
+      if(amount < 10) {
+        alert('कृपया राशि ₹10 या उससे अधिक दर्ज करें');
+        return;
+      }
+
+      const upiId = 'Monikadadhich@jio'; // आपकी UPI ID
+      const name = 'Monika Dadhich';      // आपका नाम
+      const note = 'मोबाइल रिचार्ज';
+
+      const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+      document.getElementById('paymentLink').innerHTML = `
+        <a href="${upiUri}" target="_blank" rel="noopener noreferrer">यहाँ क्लिक करें और पेमेंट करें</a>
+        <p>या नीचे QR कोड स्कैन करें:</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}" alt="UPI QR Code" />
+      `;
+    }
+  </script>
+
+</body>
+</html>
