@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>मोबाइल रिचार्ज - Jio स्टाइल</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(90deg, #ff0000, #b30000);
+      padding: 15px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header img {
+      height: 40px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 15px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .plan-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .plan-card:hover {
+      transform: translateY(-3px);
+    }
+    .plan-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #b30000;
+    }
+    .plan-validity, .plan-benefits {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #444;
+    }
+    button {
+      background: #ff0000;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #b30000;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Jio_Logo.svg/1200px-Jio_Logo.svg.png" alt="Logo">
+  <h1>मोबाइल रिचार्ज</h1>
+</header>
+
+<main>
+  <label for="operator">ऑपरेटर चुनें:</label>
+  <select id="operator" onchange="showPlans()">
+    <option value="jio">Jio</option>
+    <option value="airtel">Airtel</option>
+    <option value="vi">Vodafone Idea (Vi)</option>
+    <option value="bsnl">BSNL</option>
+  </select>
+
+  <div class="plans" id="plans"></div>
+</main>
+
+<script>
+const plansData = {
+  jio: [
+    { amount: 149, validity: '28 दिन', benefits: '2GB/दिन डाटा' },
+    { amount: 249, validity: '56 दिन', benefits: '1.5GB/दिन डाटा' },
+    { amount: 399, validity: '84 दिन', benefits: '2GB/दिन डाटा' }
+  ],
+  airtel: [
+    { amount: 199, validity: '28 दिन', benefits: '1.5GB/दिन डाटा' },
+    { amount: 299, validity: '56 दिन', benefits: '2GB/दिन डाटा' },
+    { amount: 449, validity: '84 दिन', benefits: '2.5GB/दिन डाटा' }
+  ],
+  vi: [
+    { amount: 149, validity: '28 दिन', benefits: '1GB/दिन डाटा' },
+    { amount: 249, validity: '56 दिन', benefits: '1.5GB/दिन डाटा' },
+    { amount: 399, validity: '84 दिन', benefits: '2GB/दिन डाटा' }
+  ],
+  bsnl: [
+    { amount: 125, validity: '30 दिन', benefits: 'Unlimited कॉल + 2GB डाटा' },
+    { amount: 225, validity: '60 दिन', benefits: 'Unlimited कॉल + 3GB डाटा' },
+    { amount: 350, validity: '90 दिन', benefits: 'Unlimited कॉल + 5GB डाटा' }
+  ]
+};
+
+function showPlans() {
+  const operator = document.getElementById('operator').value;
+  const plansDiv = document.getElementById('plans');
+  plansDiv.innerHTML = '';
+
+  plansData[operator].forEach(plan => {
+    const card = document.createElement('div');
+    card.className = 'plan-card';
+    card.innerHTML = `
+      <div class="plan-price">₹${plan.amount}</div>
+      <div class="plan-validity">वैधता: ${plan.validity}</div>
+      <div class="plan-benefits">${plan.benefits}</div>
+      <button onclick="payNow(${plan.amount})">Pay Now</button>
+    `;
+    plansDiv.appendChild(card);
+  });
+}
+
+function payNow(amount) {
+  const upiId = 'monikadadhich@jio';
+  const name = 'Monika Dadhich';
+  const note = 'मोबाइल रिचार्ज';
+  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(note)}`;
+  window.location.href = upiUri;
+}
+
+// Show default plans
+showPlans();
+</script>
+
+</body>
+</html>
